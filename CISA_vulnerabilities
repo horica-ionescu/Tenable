@@ -1,0 +1,219 @@
+from tenable.io import TenableIO
+import config
+import numpy as np
+import pandas as pd
+
+tio = TenableIO(config.TIO_ACCESS_KEY, config.TIO_SECRET_KEY)
+
+#Constants for tags, below is an example
+AWS_CLOUD_TAGS = [('Environment', 'AWS Cloud Account')]
+
+#Adding entries to the DataFrame
+def append_to_vuln_df(vuln_dataframe, index, tenable_entry):
+    try:
+        vuln_dataframe.loc[index,['fqdn']] = tenable_entry['asset']['fqdn']
+    except Exception:
+        vuln_dataframe.loc[index,['fqdn']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['hostname']] = tenable_entry['asset']['hostname']
+    except Exception:
+        vuln_dataframe.loc[index,['hostname']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['uuid']] = tenable_entry['asset']['uuid']
+    except Exception:
+        vuln_dataframe.loc[index,['uuid']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['netbios_name']] = tenable_entry['asset']['netbios_name']
+    except Exception:
+        vuln_dataframe.loc[index,['netbios_name']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['ipv4']] = tenable_entry['asset']['ipv4']
+    except Exception:
+        vuln_dataframe.loc[index,['ipv4']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['plugin_name']] = tenable_entry['plugin']['name']
+    except Exception:
+        vuln_dataframe.loc[index,['plugin_name']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['plugin_id']] = tenable_entry['plugin']['id']
+    except Exception:
+        vuln_dataframe.loc[index,['plugin_id']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['vpr']] = tenable_entry['plugin']['vpr']['score']
+    except Exception:
+        vuln_dataframe.loc[index,['vpr']] = "NA"    
+    try:
+        vuln_dataframe.loc[index,['exploit_code_maturity']] = tenable_entry['plugin']['vpr']['drivers']['exploit_code_maturity']
+    except Exception:
+        vuln_dataframe.loc[index,['exploit_code_maturity']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['threat_intensity_last28']] = tenable_entry['plugin']['vpr']['drivers']['threat_intensity_last28']
+    except Exception:
+        vuln_dataframe.loc[index,['threat_intensity_last28']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['age_of_vuln.lower_bound']] = tenable_entry['plugin']['vpr']['drivers']['age_of_vuln']['lower_bound']
+    except Exception:
+        vuln_dataframe.loc[index,['age_of_vuln.lower_bound']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['age_of_vuln.upper_bound']] = tenable_entry['plugin']['vpr']['drivers']['age_of_vuln']['upper_bound']
+    except Exception:
+        vuln_dataframe.loc[index,['age_of_vuln.upper_bound']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['threat_sources_last28']] = tenable_entry['plugin']['vpr']['drivers']['threat_sources_last28']
+    except Exception:
+        vuln_dataframe.loc[index,['threat_sources_last28']] = "NA"        
+    try:
+        vuln_dataframe.loc[index,['severity']] = tenable_entry['severity']
+    except Exception:
+        vuln_dataframe.loc[index,['severity']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss3_base_score']] = tenable_entry['plugin']['cvss3_base_score']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss3_base_score']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss3_temporal_score']] = tenable_entry['plugin']['cvss3_temporal_score']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss3_temporal_score']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_base_score']] = tenable_entry['plugin']['cvss_base_score']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_base_score']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_temporal_score']] = tenable_entry['plugin']['cvss_temporal_score']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_temporal_score']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['exploit_available']] = tenable_entry['plugin']['exploit_available']
+    except Exception:
+        vuln_dataframe.loc[index,['exploit_available']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['exploitability_ease']] = tenable_entry['plugin']['exploitability_ease']
+    except Exception:
+        vuln_dataframe.loc[index,['exploitability_ease']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['exploited_by_malware']] = tenable_entry['plugin']['exploited_by_malware']
+    except Exception:
+        vuln_dataframe.loc[index,['exploited_by_malware']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['exploited_by_nessus']] = tenable_entry['plugin']['exploited_by_nessus']
+    except Exception:
+        vuln_dataframe.loc[index,['exploited_by_nessus']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['in_the_news']] = tenable_entry['plugin']['in_the_news']
+    except Exception:
+        vuln_dataframe.loc[index,['in_the_news']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['has_patch']] = tenable_entry['plugin']['has_patch']
+    except Exception:
+        vuln_dataframe.loc[index,['has_patch']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['in_the_news']] = tenable_entry['plugin']['in_the_news']
+    except Exception:
+        vuln_dataframe.loc[index,['in_the_news']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['unsupported_by_vendor']] = tenable_entry['plugin']['unsupported_by_vendor']
+    except Exception:
+        vuln_dataframe.loc[index,['unsupported_by_vendor']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss3_remediation_level']] = tenable_entry['plugin']['cvss3_temporal_vector']['remediation_level']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss3_remediation_level']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['cvss3_report_confidence']] = tenable_entry['plugin']['cvss3_temporal_vector']['report_confidence']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss3_report_confidence']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['cvss3_availability_impact']] = tenable_entry['plugin']['cvss3_vector']['availability_impact']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss3_availability_impact']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['cvss3_confidentiality_impact']] = tenable_entry['plugin']['cvss3_vector']['confidentiality_impact']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss3_confidentiality_impact']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['cvss3_integrity_impact']] = tenable_entry['plugin']['cvss3_vector']['integrity_impact']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss3_integrity_impact']] = "NA"
+    try:
+        vuln_dataframe.loc[index,['cvss_exploitability']] = tenable_entry['plugin']['cvss_temporal_vector']['exploitability']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_exploitability']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_remediation_level']] = tenable_entry['plugin']['cvss_temporal_vector']['remediation_level']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_remediation_level']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_report_confidence']] = tenable_entry['plugin']['cvss_temporal_vector']['report_confidence']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_report_confidence']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_access_complexity']] = tenable_entry['plugin']['cvss_vector']['access_complexity']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_access_complexity']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_access_vector']] = tenable_entry['plugin']['cvss_vector']['access_vector']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_access_vector']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_authentication']] = tenable_entry['plugin']['cvss_vector']['authentication']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_authentication']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_availability_impact']] = tenable_entry['plugin']['cvss_vector']['availability_impact']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_availability_impact']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_confidentiality_impact']] = tenable_entry['plugin']['cvss_vector']['confidentiality_impact']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_confidentiality_impact']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_integrity_impact']] = tenable_entry['plugin']['cvss_vector']['integrity_impact']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_integrity_impact']] = 'NA'
+    try:
+        vuln_dataframe.loc[index,['cvss_integrity_impact']] = tenable_entry['plugin']['cvss_vector']['integrity_impact']
+    except Exception:
+        vuln_dataframe.loc[index,['cvss_integrity_impact']] = 'NA'
+    try:
+        if tenable_entry['severity'] == 'info':
+            vuln_dataframe.loc[index,['output']] = 'NA'
+        else:
+            vuln_dataframe.loc[index,['output']] = tenable_entry['output']        
+    except Exception:
+        vuln_dataframe.loc[index,['output']] = 'NA'
+    return vuln_dataframe
+
+#Pulling vulnerability data from Tenable (everything, or specify tags)
+vuln_export = tio.exports.vulns()
+    #Optional tags
+    #tags=AWS_CLOUD_TAGS
+#)
+
+#DataFrame columns
+vuln_df = pd.DataFrame(columns=('fqdn','hostname','uuid','netbios_name',\
+    'ipv4', 'plugin_name','plugin_id','vpr','exploit_code_maturity',\
+    'threat_intensity_last28','age_of_vuln.lower_bound',\
+    'age_of_vuln.upper_bound','threat_sources_last28','severity',\
+    'cvss3_base_score','cvss3_temporal_score','cvss_base_score',\
+    'cvss_temporal_score','exploit_available','exploitability_ease',\
+    'exploited_by_malware','exploited_by_nessus','has_patch','in_the_news',\
+    'unsupported_by_vendor','cvss3_remediation_level',\
+    'cvss3_report_confidence','cvss3_availability_impact',\
+    'cvss3_confidentiality_impact','cvss3_integrity_impact',\
+    'cvss_exploitability','cvss_remediation_level','cvss_report_confidence',\
+    'cvss_access_complexity','cvss_access_vector','cvss_authentication',\
+    'cvss_availability_impact','cvss_confidentiality_impact',\
+    'cvss_integrity_impact','output'))
+
+#Finding CISA vulnerabilities from the Tenable export
+i=0
+for vuln_object_entry in vuln_export:
+    try:
+        if (vuln_object_entry['plugin']['xrefs'][0].get('type')) == 'CISA-KNOWN-EXPLOITED':
+            vuln_df = append_to_vuln_df(vuln_df, i, vuln_object_entry)
+            i+=1
+    except Exception:
+        continue
+
+#Output to CSV
+vuln_df.to_csv('output.csv', index=False)
